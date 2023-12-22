@@ -3,49 +3,90 @@ import { useState } from "react";
 import { useContext } from "react";
 import { UserContext } from "../context/userProvider";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 export const Register = () => {
-  const [email, setEmail] = useState("test@test.com");
-  const [password, setPassword] = useState("123123");
+  const navegate = useNavigate();
   const { registerUser } = useContext(UserContext);
-const navegate = useNavigate();
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    setError,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = async ({ email, password }) => {
     try {
       const user = await registerUser(email, password);
       console.log(user);
       navegate("/");
     } catch (error) {
       console.log(error.code);
-      if (error.code === "auth/email-already-in-use") {
-        console.log("El correo ya esta en uso");
-      }
-      if (error.code === "auth/invalid-email") {
-        console.log("El correo no es valido");
-      }
-      if (error.code === "auth/weak-password") {
-        console.log("La contraseña es muy debil");
-      }
-      if (error.code === "auth/operation-not-allowed") {
-        console.log("El correo no esta habilitado");
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          setError("email", { message: "El email ya esta en uso" });
+          break;
+        case "auth/invalid-email":
+          setError("email", { message: "El email no es valido" });
+          break;
+        case "auth/weak-password":
+          setError("password", { message: "La contraseña es muy debil" });
+          break;
+        case "auth/too-many-requests":
+          setError("email", { message: "Demasiados intentos de registro" });
+          break;
+        default:
+          alert("Error al registrar");
+          break;
       }
     }
   };
+
   return (
     <>
       <h1>REGISTRO</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <input
           type="email"
           placeholder="Ingrese Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          {...register("email", {
+            required: { value: true, message: "Este campo es requerido" },
+            pattern: {
+              value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+              message: "El email no es valido",
+            },
+          })}
         />
+        {errors.email && errors.email.message}
         <input
           type="password"
           placeholder="Ingrese contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          {...register("password", {
+            minLength: {
+              value: 6,
+              message: "La contraseña debe tener al menos 6 caracteres",
+            },
+            validate: {
+              trim: (v) => {
+                if (!v.trim()) return "No debe contener espacios en blanco";
+                true;
+              },
+            },
+          })}
         />
+        {errors.password && errors.password.message}
+        <input
+          type="password"
+          placeholder="Repita la contraseña"
+          {...register("repassword", {
+            validate: {
+              equals: (v) =>
+                v === getValues("password") || "Las contraseñas no coinciden",
+            },
+          })}
+        />
+        {errors.repassword && errors.repassword.message}
         <button type="submit">Register</button>
       </form>
     </>
