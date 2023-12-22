@@ -1,58 +1,58 @@
-import React from 'react'
-import { useContext, useState } from 'react'
-import { UserContext } from '../context/userProvider'
-import { useNavigate } from 'react-router-dom'
-
-
+import React from "react";
+import { useContext } from "react";
+import { UserContext } from "../context/userProvider";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import erroresFirebase from "../utils/erroresFirebase";
+import FormError from "../components/FormError";
+import FormInput from "../components/FormInput";
+import { formValidate } from "../utils/formValidate";
 export const Login = () => {
-
-
-  const [email, setEmail] = useState("test@test.com");
-  const [password, setPassword] = useState("123123");
-
   const { loginUser } = useContext(UserContext);
   const navigate = useNavigate();
+  const { required, patternEmail, minLength, validateTrim } = formValidate();
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm();
 
-
-  const handleSubmit = async(e) => {
-    e.preventDefault();
+  const onSubmit = async ({ email, password }) => {
     try {
-      const user = await loginUser(email, password);
-      console.log(user);
+      await loginUser(email, password);
+      console.log("loginUser");
       navigate("/");
     } catch (error) {
       console.log(error.code);
-      if (error.code === "auth/email-already-in-use") {
-        console.log("El correo ya esta en uso");
-      }if (error.code === "auth/invalid-email") {
-        console.log("El correo no es valido");
-      }if (error.code === "auth/weak-password") {
-        console.log("La contraseña es muy debil");
-      }if (error.code === "auth/operation-not-allowed") {
-        console.log("El correo no esta habilitado");
-      }
+      setError("firebase", { message: erroresFirebase(error.code) });
     }
   };
 
   return (
     <>
-    <h1>LOGIN</h1>
-      <form onSubmit={handleSubmit}>
-        <input
+      <h1>LOGIN</h1>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <FormError error={errors.firebase} />
+        <FormInput
           type="email"
           placeholder="Ingrese Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
+          {...register("email", { required, pattern: patternEmail })}
+        ></FormInput>
+        <FormError error={errors.email} />
+
+        <FormInput
           type="password"
           placeholder="Ingrese contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          {...register("password", {
+            minLength,
+            validate: validateTrim,
+          })}
+        ></FormInput>
+        <FormError error={errors.password} />
         <button type="submit">Acceder</button>
       </form>
     </>
- )
-}
+  );
+};
 export default Login;
