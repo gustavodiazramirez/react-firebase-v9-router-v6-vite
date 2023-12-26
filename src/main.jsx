@@ -5,10 +5,12 @@ import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import UserProvider from "./context/userProvider";
 
+import "flowbite";
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
-  <UserProvider>
+    <UserProvider>
       <App />
-  </UserProvider>
-    </BrowserRouter>
+    </UserProvider>
+  </BrowserRouter>
 );

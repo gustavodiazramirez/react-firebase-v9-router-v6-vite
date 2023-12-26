@@ -3,23 +3,42 @@ import React from "react";
 export const erroresFirebase = (code) => {
   switch (code) {
     case "auth/email-already-in-use":
-      return "El email ya esta en uso";
+      return {
+        code: "email",
+        message: "El email ya esta en uso",
+      }
 
     case "auth/invalid-email":
-      return "El email no es valido";
+      return {
+        code: "email",
+        message: "El email no es valido",
+      }
 
     case "auth/too-many-requests":
-      return "Demasiados intentos de inicio de sesión fallidos. Inténtalo de nuevo más tarde.";
+      return {
+        code: "email",
+        message: "Demasiados intentos, espere unos minutos",
+      }
     case "auth/wrong-password":
-      return "La contraseña no es correcta";
+      return {
+        code: "password",
+        message: "Contraseña incorrecta",
+      }
     case "auth/user-not-found":
-      return "Usuario no encontrado";
+      return {
+        code: "email",
+        message: "El email no esta registrado",
+      }
     case "auth/weak-password":
-      return "La contraseña debe tener 6 caracteres o más";
-    case "auth/operation-not-allowed":
-      return "Operación no permitida";
+      return {
+        code: "password",
+        message: "La contraseña debe tener 6 caracteres o más",
+      }
       case "auth/invalid-credential":
-      return "Credenciales no válidas";
+      return {
+        code: "email",
+        message: "El email y/o contraseña no son validos",
+      }
     default:
       break;
   }
