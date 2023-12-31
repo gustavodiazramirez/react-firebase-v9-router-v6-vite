@@ -1,37 +1,47 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
-import Login from "./routes/Login";
-import Navbar from "./components/Navbar";
-import Home from "./routes/Home";
-import RequireAuth from "./components/RequireAuth";
-import Register from "./routes/Register";
-import { useContext } from "react";
 import { UserContext } from "./context/userProvider";
-import LayoutContainerForm from "./components/layoutContainerForm";
-export const App = () => {
-  const { user } = useContext(UserContext);
-  if (user === false) {
-    return <h1>Loading...</h1>;
-  }
+import { Routes, Route } from "react-router-dom";
+import { useContext } from "react";
 
-  return (
-    <>
-      <Navbar />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <RequireAuth>
-              <Home />
-            </RequireAuth>
-          }
-        />
-        <Route path="/" element={<LayoutContainerForm/>}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Route>
-      </Routes>
-    </>
-  );
+import NotFound from "./routes/NotFound";
+import Register from "./routes/Register";
+import Perfil from "./routes/Perfil";
+import Login from "./routes/Login";
+import Home from "./routes/Home";
+
+import LayoutContainerForm from "./components/layouts/LayoutContainerForm";
+import LayoutRequireAuth from "./components/layouts/LayoutRequireAuth";
+import LayoutRedirect from "./components/layouts/layoutRedirect";
+// import Navbar from "./components/Navbar";
+import Navbar from "./components/Navbar";
+
+const App = () => {
+    const { user } = useContext(UserContext);
+
+    if (user === false) {
+        return <p>Loading...</p>;
+    }
+
+    return (
+        <>
+            {/* <Navbar /> */}
+            <Navbar />
+            <Routes>
+                <Route path="/" element={<LayoutRequireAuth />}>
+                    <Route index element={<Home />} />
+                    <Route path="perfil" element={<Perfil />} />
+                </Route>
+
+                <Route path="/" element={<LayoutContainerForm />}>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                </Route>
+
+                <Route path="/:nanoid" element={<LayoutRedirect />}>
+                    <Route index element={<NotFound />} />
+                </Route>
+            </Routes>
+        </>
+    );
 };
+
 export default App;

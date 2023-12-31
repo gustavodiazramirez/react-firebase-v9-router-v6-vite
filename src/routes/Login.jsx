@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useContext } from "react";
 import { UserContext } from "../context/userProvider";
 import { useNavigate } from "react-router-dom";
@@ -9,8 +9,12 @@ import FormInput from "../components/FormInput";
 import { formValidate } from "../utils/formValidate";
 import Title from "../components/Title";
 import Button from "../components/Button";
+import ButtonLoading from "../components/ButtonLoading";
 export const Login = () => {
+
+  
   const { loginUser } = useContext(UserContext);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { required, patternEmail, minLength, validateTrim } = formValidate();
   const {
@@ -22,6 +26,7 @@ export const Login = () => {
 
   const onSubmit = async ({ email, password }) => {
     try {
+      setLoading(true);
       await loginUser(email, password);
       console.log("loginUser");
       navigate("/");
@@ -29,6 +34,9 @@ export const Login = () => {
       console.log(error.code);
       const { code, message } = erroresFirebase(error.code);
       setError(code, { message });
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -73,7 +81,10 @@ export const Login = () => {
               .
             </p>
           </div>
-          <Button text="Acceder" />
+          {
+            loading ? <ButtonLoading/> :  <Button text="Acceder" />
+          }
+         
         </form>
       </div>
     </>
